@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    active: dev
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+app:
+  api:
+    version: 2.0.0
+  upload:
+    dir: uploads
+
+server:
+  port: 8080

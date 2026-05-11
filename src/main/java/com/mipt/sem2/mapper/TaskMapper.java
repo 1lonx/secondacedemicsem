@@ -3,7 +3,7 @@ package com.mipt.sem2.mapper;
 import com.mipt.sem2.dto.TaskCreateDto;
 import com.mipt.sem2.dto.TaskResponseDto;
 import com.mipt.sem2.dto.TaskUpdateDto;
-import com.mipt.sem2.model.Task;
+import com.mipt.sem2.entity.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;

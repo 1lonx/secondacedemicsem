@@ -1,13 +1,12 @@
 package com.mipt.sem2.controller;
 
 import com.mipt.sem2.dto.*;
+import com.mipt.sem2.entity.Task;
 import com.mipt.sem2.mapper.TaskMapper;
-import com.mipt.sem2.model.Task;
 import com.mipt.sem2.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +22,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
 public class TaskController {
+
   private final TaskService taskService;
   private final TaskMapper taskMapper;
 
@@ -32,13 +32,13 @@ public class TaskController {
   @GetMapping
   @Operation(summary = "Get all tasks")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "List of tasks")
+          @ApiResponse(responseCode = "200", description = "List of tasks")
   })
   public ResponseEntity<List<TaskResponseDto>> getAllTasks() {
     List<Task> tasks = taskService.findAll();
     List<TaskResponseDto> dtos = tasks.stream()
-        .map(taskMapper::toResponseDto)
-        .collect(Collectors.toList());
+            .map(taskMapper::toResponseDto)
+            .collect(Collectors.toList());
     HttpHeaders headers = new HttpHeaders();
     headers.add("X-Total-Count", String.valueOf(tasks.size()));
     headers.add("X-API-Version", apiVersion);
@@ -50,8 +50,8 @@ public class TaskController {
   public ResponseEntity<TaskResponseDto> getTask(@PathVariable Long id) {
     Task task = taskService.findById(id);
     return ResponseEntity.ok()
-        .header("X-API-Version", apiVersion)
-        .body(taskMapper.toResponseDto(task));
+            .header("X-API-Version", apiVersion)
+            .body(taskMapper.toResponseDto(task));
   }
 
   @PostMapping
@@ -59,18 +59,18 @@ public class TaskController {
   public ResponseEntity<TaskResponseDto> createTask(@Validated(OnCreate.class) @RequestBody TaskCreateDto dto) {
     Task task = taskService.create(dto);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .header("X-API-Version", apiVersion)
-        .body(taskMapper.toResponseDto(task));
+            .header("X-API-Version", apiVersion)
+            .body(taskMapper.toResponseDto(task));
   }
 
   @PutMapping("/{id}")
   @Operation(summary = "Update an existing task")
   public ResponseEntity<TaskResponseDto> updateTask(@PathVariable Long id,
-      @Validated(OnUpdate.class) @RequestBody TaskUpdateDto dto) {
+                                                    @Validated(OnUpdate.class) @RequestBody TaskUpdateDto dto) {
     Task task = taskService.update(id, dto);
     return ResponseEntity.ok()
-        .header("X-API-Version", apiVersion)
-        .body(taskMapper.toResponseDto(task));
+            .header("X-API-Version", apiVersion)
+            .body(taskMapper.toResponseDto(task));
   }
 
   @DeleteMapping("/{id}")
@@ -78,7 +78,7 @@ public class TaskController {
   public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
     taskService.delete(id);
     return ResponseEntity.noContent()
-        .header("X-API-Version", apiVersion)
-        .build();
+            .header("X-API-Version", apiVersion)
+            .build();
   }
 }
