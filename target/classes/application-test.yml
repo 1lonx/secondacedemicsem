@@ -1,0 +1,11 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+app:
+  api:
+    version: 2.0.0
+  upload:
+    dir: test-uploads
