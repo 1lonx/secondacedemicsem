@@ -1,11 +1,11 @@
 package com.mipt.sem2.exception;
 
-import com.mipt.sem2.dto.ErrorResponse;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -13,82 +13,87 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URI;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler(TaskNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handleTaskNotFound(TaskNotFoundException ex, HttpServletRequest request) {
-    return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
-  }
+    @ExceptionHandler(TaskNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleTaskNotFound(TaskNotFoundException ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        pd.setTitle("Task Not Found");
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(pd);
+    }
 
-  @ExceptionHandler(AttachmentNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handleAttachmentNotFound(AttachmentNotFoundException ex, HttpServletRequest request) {
-    return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
-  }
+    @ExceptionHandler(AttachmentNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleAttachmentNotFound(AttachmentNotFoundException ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        pd.setTitle("Attachment Not Found");
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(pd);
+    }
 
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
-    Map<String, Object> details = ex.getBindingResult().getFieldErrors().stream()
-        .collect(Collectors.toMap(
-            FieldError::getField,
-            FieldError::getDefaultMessage,
-            (msg1, msg2) -> msg1 + "; " + msg2
-        ));
-    return buildErrorResponse(HttpStatus.BAD_REQUEST, "Validation failed", request, details);
-  }
+    @ExceptionHandler(ExternalApiException.class)
+    public ResponseEntity<ProblemDetail> handleExternalApi(ExternalApiException ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, ex.getMessage());
+        pd.setTitle("External Service Error");
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(pd);
+    }
 
-  @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
-    Map<String, Object> details = ex.getConstraintViolations().stream()
-        .collect(Collectors.toMap(
-            violation -> violation.getPropertyPath().toString(),
-            violation -> violation.getMessage(),
-            (msg1, msg2) -> msg1 + "; " + msg2
-        ));
-    return buildErrorResponse(HttpStatus.BAD_REQUEST, "Constraint violation", request, details);
-  }
+    @ExceptionHandler(RequestNotPermitted.class)
+    public ResponseEntity<ProblemDetail> handleRateLimit(RequestNotPermitted ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS, "Rate limit exceeded, try again later");
+        pd.setTitle("Too Many Requests");
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(pd);
+    }
 
-  @ExceptionHandler(MissingServletRequestParameterException.class)
-  public ResponseEntity<ErrorResponse> handleMissingParams(MissingServletRequestParameterException ex, HttpServletRequest request) {
-    Map<String, Object> details = new HashMap<>();
-    details.put(ex.getParameterName(), "Missing parameter");
-    return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, details);
-  }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ProblemDetail> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
+        String detail = ex.getBindingResult().getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        pd.setTitle("Validation Failed");
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return ResponseEntity.badRequest().body(pd);
+    }
 
-  @ExceptionHandler(HttpMessageNotReadableException.class)
-  public ResponseEntity<ErrorResponse> handleNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
-    return buildErrorResponse(HttpStatus.BAD_REQUEST, "Malformed JSON request", request);
-  }
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ProblemDetail> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest req) {
+        String detail = ex.getConstraintViolations().stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .collect(Collectors.joining(", "));
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        pd.setTitle("Constraint Violation");
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return ResponseEntity.badRequest().body(pd);
+    }
 
-  @ExceptionHandler(NoHandlerFoundException.class)
-  public ResponseEntity<ErrorResponse> handleNotFound(NoHandlerFoundException ex, HttpServletRequest request) {
-    return buildErrorResponse(HttpStatus.NOT_FOUND, "Endpoint not found", request);
-  }
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ProblemDetail> handleMissingParam(MissingServletRequestParameterException ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        pd.setTitle("Missing Parameter");
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return ResponseEntity.badRequest().body(pd);
+    }
 
-  @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleGeneric(Exception ex, HttpServletRequest request) {
-    // In production you might not want to expose stack trace
-    return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", request);
-  }
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ProblemDetail> handleNoHandler(NoHandlerFoundException ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Endpoint not found");
+        pd.setTitle("Not Found");
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(pd);
+    }
 
-  private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message, HttpServletRequest request) {
-    return buildErrorResponse(status, message, request, null);
-  }
-
-  private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message, HttpServletRequest request, Map<String, Object> details) {
-    ErrorResponse error = new ErrorResponse(
-        Instant.now(),
-        status.value(),
-        status.getReasonPhrase(),
-        message,
-        request.getRequestURI(),
-        details != null ? details : new HashMap<>()
-    );
-    return new ResponseEntity<>(error, status);
-  }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ProblemDetail> handleGeneric(Exception ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong");
+        pd.setTitle("Internal Server Error");
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return ResponseEntity.internalServerError().body(pd);
+    }
 }

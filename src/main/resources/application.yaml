@@ -11,12 +11,56 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+  mvc:
+    problemdetails:
+      enabled: true
 
 app:
   api:
     version: 2.0.0
   upload:
     dir: uploads
+  security:
+    jwt:
+      secret: "b3BlbnNzaC1rZXktdjEAAAAAbG9nIWluIHRvIHRoZSBzeXN0ZW0K"
+      expiration-ms: 3600000
+    pepper: "hw4-pep#9x"
+  external:
+    base-url: http://localhost:8080/external/v1
+    connect-timeout-ms: 2000
+    read-timeout-ms: 5000
 
 server:
   port: 8080
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      externalApi:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 3
+        ignore-exceptions:
+          - io.github.resilience4j.ratelimiter.RequestNotPermitted
+  ratelimiter:
+    instances:
+      externalApi:
+        limit-for-period: 10
+        limit-refresh-period: 10s
+        timeout-duration: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,circuitbreakers,ratelimiters
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [trace=%X{traceId:-?}] - %msg%n"

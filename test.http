@@ -1,0 +1,42 @@
+### Login user
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{"username": "user", "password": "password"}
+
+### Login reader
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{"username": "reader", "password": "password"}
+
+### Profile
+GET http://localhost:8080/api/v1/profile
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyIiwiYXV0aG9yaXRpZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3Nzg1NzQwOTAsImV4cCI6MTc3ODU3NzY5MH0.TdJXB-vfJ403xtGizCa8PZCGLcIZRlt-tBeSxdk7Ag4do_Gxu7_xcK6uZcETniUP
+
+### Docs с user-токеном
+GET http://localhost:8080/api/v1/docs
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyIiwiYXV0aG9yaXRpZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3Nzg1NzQwOTAsImV4cCI6MTc3ODU3NzY5MH0.TdJXB-vfJ403xtGizCa8PZCGLcIZRlt-tBeSxdk7Ag4do_Gxu7_xcK6uZcETniUP
+
+### Создать задачу
+POST http://localhost:8080/api/v1/tasks
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyIiwiYXV0aG9yaXRpZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3Nzg1NzQwOTAsImV4cCI6MTc3ODU3NzY5MH0.TdJXB-vfJ403xtGizCa8PZCGLcIZRlt-tBeSxdk7Ag4do_Gxu7_xcK6uZcETniUP
+Content-Type: application/json
+
+{"title": "test task", "description": "hello"}
+
+### Список задач
+GET http://localhost:8080/api/v1/tasks
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyIiwiYXV0aG9yaXRpZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3Nzg1NzQwOTAsImV4cCI6MTc3ODU3NzY5MH0.TdJXB-vfJ403xtGizCa8PZCGLcIZRlt-tBeSxdk7Ag4do_Gxu7_xcK6uZcETniUP
+
+### Docs с reader-токеном
+GET http://localhost:8080/api/v1/docs
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJyZWFkZXIiLCJhdXRob3JpdGllcyI6IlJFQURfUFJJVklMRUdFLFJPTEVfVVNFUiIsImlhdCI6MTc3ODU3NDI3NSwiZXhwIjoxNzc4NTc3ODc1fQ.QURs3MGjxKRzDT5FKIFAOUXysg3HH6SS1_X5v8BKHk5ODEc_4nzO8rqK-_eHZ6CD
+
+### Circuit breaker
+GET http://localhost:8080/api/v1/tasks/probe?mode=500
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyIiwiYXV0aG9yaXRpZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3Nzg1NzQwOTAsImV4cCI6MTc3ODU3NzY5MH0.TdJXB-vfJ403xtGizCa8PZCGLcIZRlt-tBeSxdk7Ag4do_Gxu7_xcK6uZcETniUP
+
+### 404
+GET http://localhost:8080/api/v1/tasks/999999
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyIiwiYXV0aG9yaXRpZXMiOiJST0xFX1VTRVIiLCJpYXQiOjE3Nzg1NzQwOTAsImV4cCI6MTc3ODU3NzY5MH0.TdJXB-vfJ403xtGizCa8PZCGLcIZRlt-tBeSxdk7Ag4do_Gxu7_xcK6uZcETniUP
