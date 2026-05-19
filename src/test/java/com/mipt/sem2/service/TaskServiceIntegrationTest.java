@@ -3,11 +3,12 @@ package com.mipt.sem2.service;
 import com.mipt.sem2.dto.TaskCreateDto;
 import com.mipt.sem2.exception.TaskNotFoundException;
 import com.mipt.sem2.model.Priority;
+import com.mipt.sem2.repository.TaskRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,11 +18,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Transactional
 class TaskServiceIntegrationTest {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private TaskRepository taskRepository;
+
+    @BeforeEach
+    void setUp() {
+        taskRepository.deleteAll();
+    }
 
     @Test
     void bulkCompleteTasks_shouldCompleteAllWhenAllExist() {

@@ -8,6 +8,7 @@ import com.mipt.sem2.mapper.TaskMapper;
 import com.mipt.sem2.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -43,5 +44,14 @@ public class TaskService {
       throw new TaskNotFoundException(id);
     }
     taskRepository.deleteById(id);
+  }
+
+  @Transactional
+  public void bulkCompleteTasks(List<Long> ids) {
+    for (Long id : ids) {
+      Task task = findById(id);
+      task.setCompleted(true);
+      taskRepository.save(task);
+    }
   }
 }

@@ -4,11 +4,14 @@ import com.mipt.sem2.dto.TaskCreateDto;
 import com.mipt.sem2.dto.TaskUpdateDto;
 import com.mipt.sem2.exception.TaskNotFoundException;
 import com.mipt.sem2.model.Priority;
-import com.mipt.sem2.model.Task;
+import com.mipt.sem2.entity.Task;
+import com.mipt.sem2.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -16,6 +19,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
+@Transactional
 class TaskServiceTest {
 
   @Autowired

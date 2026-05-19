@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithMockUser
 class FavoritesControllerTest {
 
   @Autowired
@@ -58,8 +60,7 @@ class FavoritesControllerTest {
 
   @Test
   void addFavorite_ShouldAddTaskToSession() throws Exception {
-    mockMvc.perform(post("/api/favorites/{taskId}", taskId1)
-            .session(session))
+    mockMvc.perform(post("/api/favorites/{taskId}", taskId1).session(session))
         .andExpect(status().isOk())
         .andExpect(header().exists("X-API-Version"));
   }

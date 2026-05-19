@@ -2,7 +2,8 @@ package com.mipt.sem2;
 
 import com.mipt.sem2.dto.*;
 import com.mipt.sem2.model.Priority;
-import com.mipt.sem2.model.Task;
+import com.mipt.sem2.entity.Task;
+import com.mipt.sem2.mapper.TaskMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
