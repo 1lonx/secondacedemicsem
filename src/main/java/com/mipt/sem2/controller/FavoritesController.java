@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/favorites")
 @RequiredArgsConstructor
 public class FavoritesController {
+
   private final FavoritesService favoritesService;
   private final TaskService taskService;
   private final TaskMapper taskMapper;
@@ -28,6 +29,7 @@ public class FavoritesController {
   @PostMapping("/{taskId}")
   @Operation(summary = "Add task to favorites")
   public ResponseEntity<Void> addFavorite(@PathVariable Long taskId, HttpSession session) {
+    taskService.findById(taskId);
     favoritesService.addFavorite(session, taskId);
     return ResponseEntity.ok().header("X-API-Version", apiVersion).build();
   }
@@ -43,11 +45,11 @@ public class FavoritesController {
   @Operation(summary = "Get favorite tasks")
   public ResponseEntity<List<TaskResponseDto>> getFavorites(HttpSession session) {
     List<TaskResponseDto> favorites = favoritesService.getFavorites(session).stream()
-        .map(taskService::findById)
-        .map(taskMapper::toResponseDto)
-        .collect(Collectors.toList());
+            .map(taskService::findById)
+            .map(taskMapper::toResponseDto)
+            .collect(Collectors.toList());
     return ResponseEntity.ok()
-        .header("X-API-Version", apiVersion)
-        .body(favorites);
+            .header("X-API-Version", apiVersion)
+            .body(favorites);
   }
 }

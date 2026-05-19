@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithMockUser
 class AttachmentControllerTest {
 
   @Autowired
@@ -48,14 +50,10 @@ class AttachmentControllerTest {
   @Test
   void uploadAttachment_WithValidFile_ShouldReturn201() throws Exception {
     MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "test.txt",
-        MediaType.TEXT_PLAIN_VALUE,
-        "Hello World".getBytes()
+        "file", "test.txt", MediaType.TEXT_PLAIN_VALUE, "Hello World".getBytes()
     );
 
-    mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", taskId)
-            .file(file))
+    mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", taskId).file(file))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.fileName").value("test.txt"))
         .andExpect(jsonPath("$.size").value(11))
@@ -65,14 +63,10 @@ class AttachmentControllerTest {
   @Test
   void uploadAttachment_WithEmptyFile_ShouldReturn200() throws Exception {
     MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "empty.txt",
-        MediaType.TEXT_PLAIN_VALUE,
-        new byte[0]
+        "file", "empty.txt", MediaType.TEXT_PLAIN_VALUE, new byte[0]
     );
 
-    mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", taskId)
-            .file(file))
+    mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", taskId).file(file))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.fileName").value("empty.txt"))
         .andExpect(jsonPath("$.size").value(0));
@@ -81,28 +75,20 @@ class AttachmentControllerTest {
   @Test
   void uploadAttachment_WithNonExistingTask_ShouldReturn404() throws Exception {
     MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "test.txt",
-        MediaType.TEXT_PLAIN_VALUE,
-        "Hello".getBytes()
+        "file", "test.txt", MediaType.TEXT_PLAIN_VALUE, "Hello".getBytes()
     );
 
-    mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", 99999)
-            .file(file))
+    mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", 99999).file(file))
         .andExpect(status().isNotFound());
   }
 
   @Test
   void listAttachments_ShouldReturn200AndList() throws Exception {
     MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "test.txt",
-        MediaType.TEXT_PLAIN_VALUE,
-        "Hello".getBytes()
+        "file", "test.txt", MediaType.TEXT_PLAIN_VALUE, "Hello".getBytes()
     );
 
-    mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", taskId)
-            .file(file))
+    mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", taskId).file(file))
         .andExpect(status().isCreated());
 
     mockMvc.perform(get("/api/tasks/{taskId}/attachments", taskId))
@@ -122,14 +108,10 @@ class AttachmentControllerTest {
   @Test
   void downloadAttachment_WithExistingId_ShouldReturn200AndFile() throws Exception {
     MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "download.txt",
-        MediaType.TEXT_PLAIN_VALUE,
-        "Download content".getBytes()
+        "file", "download.txt", MediaType.TEXT_PLAIN_VALUE, "Download content".getBytes()
     );
 
-    String response = mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", taskId)
-            .file(file))
+    String response = mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", taskId).file(file))
         .andExpect(status().isCreated())
         .andReturn().getResponse().getContentAsString();
 
@@ -149,14 +131,10 @@ class AttachmentControllerTest {
   @Test
   void deleteAttachment_WithExistingId_ShouldReturn204() throws Exception {
     MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "delete.txt",
-        MediaType.TEXT_PLAIN_VALUE,
-        "To delete".getBytes()
+        "file", "delete.txt", MediaType.TEXT_PLAIN_VALUE, "To delete".getBytes()
     );
 
-    String response = mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", taskId)
-            .file(file))
+    String response = mockMvc.perform(multipart("/api/tasks/{taskId}/attachments", taskId).file(file))
         .andExpect(status().isCreated())
         .andReturn().getResponse().getContentAsString();
 

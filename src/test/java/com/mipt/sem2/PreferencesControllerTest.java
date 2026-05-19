@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -11,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithMockUser
 class PreferencesControllerTest {
 
   @Autowired
@@ -34,8 +36,7 @@ class PreferencesControllerTest {
 
   @Test
   void setViewPreference_ShouldSetCookie() throws Exception {
-    mockMvc.perform(post("/api/preferences/view")
-            .param("mode", "detailed"))
+    mockMvc.perform(post("/api/preferences/view").param("mode", "detailed"))
         .andExpect(status().isOk())
         .andExpect(cookie().exists("viewPreference"))
         .andExpect(cookie().value("viewPreference", "detailed"))
@@ -46,20 +47,17 @@ class PreferencesControllerTest {
 
   @Test
   void setViewPreference_WithCompactMode_ShouldSetCompactCookie() throws Exception {
-    mockMvc.perform(post("/api/preferences/view")
-            .param("mode", "compact"))
+    mockMvc.perform(post("/api/preferences/view").param("mode", "compact"))
         .andExpect(status().isOk())
         .andExpect(cookie().value("viewPreference", "compact"));
   }
 
   @Test
   void setViewPreference_WithDifferentModes_ShouldUpdateCookie() throws Exception {
-    mockMvc.perform(post("/api/preferences/view")
-            .param("mode", "compact"))
+    mockMvc.perform(post("/api/preferences/view").param("mode", "compact"))
         .andExpect(status().isOk());
 
-    mockMvc.perform(post("/api/preferences/view")
-            .param("mode", "detailed"))
+    mockMvc.perform(post("/api/preferences/view").param("mode", "detailed"))
         .andExpect(status().isOk())
         .andExpect(cookie().value("viewPreference", "detailed"));
   }

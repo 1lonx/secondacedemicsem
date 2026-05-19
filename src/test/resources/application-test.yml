@@ -1,0 +1,17 @@
+spring:
+  flyway:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+app:
+  security:
+    jwt:
+      secret: "dGVzdC1zZWNyZXQtZm9yLXRlc3Rpbmctb25seS1sb25nZW5vdWdo"
+      expiration-ms: 3600000
+    pepper: "test-pepper"
+  external:
+    base-url: "http://localhost:8080/external/v1"
+    connect-timeout-ms: 1000
+    read-timeout-ms: 1000
